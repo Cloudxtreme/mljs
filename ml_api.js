@@ -18,7 +18,6 @@ var create_video_tile = function() {
     video.src = "http://www.mediacollege.com/video/format/mpeg4/videofilename.mp4";
     video.controls = true;
     tile.append(jqvideo);
-    //tile.appendChild(video);
     tile.css_props = {'backgroundColor':'#FF0000','border-radius':'15px','width':'100','height':'100'};
     tile.css(tile.css_props);
     tile.view_mode = 0; // 0 = inactive, 1 = thumbnail, 2 = playing
@@ -40,7 +39,7 @@ var create_video_tile = function() {
             // Stop playing and go back to thumbnail mode
             tile.animate(tile.css_props, 250, function() {
                 video.load();
-                //jqvideo.hide();
+                jqvideo.hide();
             });
             tile.view_mode = 0;
         }
