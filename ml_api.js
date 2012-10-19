@@ -16,45 +16,47 @@ var create_video_tile = function() {
     
     // Create the elements
     var tile = $(document.createElement('div'));
-    var border_overlay = $(document.createElement('div'));
+    tile.border_overlay = $(document.createElement('div'));
     var thumb_strip_container = $(document.createElement('div'));
-    var thumb_strip = $(document.createElement('img'));
-    var play_button = $(document.createElement('div'));
+    tile.thumb_strip = $(document.createElement('img'));
+    tile.thumb_strip.left_offset = 0;
+    tile.play_button = $(document.createElement('div'));
     
     // Set styles
     var bordered_style = {'border-radius':'15px','overflow':'hidden','width':tile_size.width,'height':tile_size.height};
-    border_overlay.css(bordered_style);
-    border_overlay.css({'position':'absolute','z-index':'1','box-shadow':'-5px 5px 10px #EDEDED inset,5px -5px 10px #EDEDED inset'});
+    tile.border_overlay.css(bordered_style);
+    tile.border_overlay.border_css = {'position':'absolute','z-index':'1','box-shadow':'0px 0px 25px 5px rgba(237,237,237,.5) inset'};
+    tile.border_overlay.css(tile.border_overlay.border_css);
     thumb_strip_container.css(bordered_style);
     thumb_strip_container.css({'z-index':'0','float':'left'});
     tile.css(bordered_style);
-    tile.css({'margin':'5px','float':'left','cursor':'pointer','box-shadow':'-5px 5px 10px #888'});
-    thumb_strip.css({'width':'607px','height':'100'});
-    play_button.css({'background':'url(images/play.png) no-repeat center center','position':'absolute','z-index':'3', 'width':tile_size.width, 'height':tile_size.height});
+    tile.css({'margin':'5px','float':'left','cursor':'pointer','box-shadow':'-5px 5px 10px rgba(237,237,237,.5)'});
+    tile.thumb_strip.css({'width':'607px','height':'100'});
+    tile.play_button.css({'background':'url(images/play.png) no-repeat center center','position':'absolute','z-index':'3', 'width':tile_size.width, 'height':tile_size.height});
     
     // Set other properties
-    //thumb_strip.get(0).src = 'http://thumbs.motherlessmedia.com/thumbs/08000F-strip.jpg';
-    thumb_strip.get(0).src = 'http://www.miqel.com/images_1/fractal_math_patterns/wada-reflection-basin/dcp_challenge_wada.jpg';
+    tile.thumb_strip.get(0).src = 'http://thumbs.motherlessmedia.com/thumbs/08000F-strip.jpg';
     tile.view_mode = 0; // 0 = inactive, 1 = thumbnail, 2 = playing
     tile.click(function() {
         if(tile.view_mode === 0) {
             // First click, show thumbnail/slideshow
-            tile.animate({'borderTopColor':'#FFD726','borderLeftColor':'#FFD726','borderRightColor':'#FFD726','borderBottomColor':'#FFD726','border-width':'3px'}, 500, function() {
-                tile.append(play_button);
-            });
+            tile.border_overlay.animate({'box-shadow':'0px 0px 25px 5px rgba(252,217,61,.5) inset'}, 1000);
+            tile.append(tile.play_button);
+            cycle_thumbs(tile);
             tile.view_mode++;
         }
         else if(tile.view_mode === 1) {
             // User has clicked the tile again, time to play the video
+            clearInterval(currentInterval);
             show_video_overlay(tile);
             tile.view_mode++;
         }
     });
 
     // Build the tile
-    thumb_strip_container.append(thumb_strip);
+    thumb_strip_container.append(tile.thumb_strip);
     tile.append(thumb_strip_container);
-    tile.append(border_overlay);
+    tile.append(tile.border_overlay);
     
     return tile;
 };
@@ -65,26 +67,59 @@ var create_video_tile = function() {
  */
 var show_video_overlay = function(tile) {
     tile.overlay = $(document.createElement('div'));
-    tile.overlay.css({'clear':'both','position':'fixed','z-index':'4','backgroundColor':'#FF0000','border-radius':'15px'});
+    tile.overlay.css({'clear':'both','position':'fixed','z-index':'4','backgroundColor':'#FF0000','border-radius':'15px','left':'5px','top':'5px','right':'5px','bottom':'5px','display':'none'});
     tile.overlay.click(function() {
         // Stop playing and go back to thumbnail mode
-        tile.overlay.animate(tile.css_props, 250, function() {
-            tile.animate(tile.css_props, 250);
+        tile.overlay.fadeOut(700, function() {
+            tile.overlay.remove();
+            tile.overlay = undefined;
+            tile.view_mode = 0;
+            tile.border_overlay.animate(tile.border_overlay.border_css, 1000);
+            tile.play_button.remove();
         });
-        tile.overlay.remove();
-        tile.overlay = undefined;
-        tile.view_mode = 0;
     });
-    var video = document.createElement('video');
-    var jqvideo = $(video);
-    jqvideo.css({'width':'100%','height':'100%'});
-    video.src = "http://www.mediacollege.com/video/format/mpeg4/videofilename.mp4";
-    video.controls = true;
+    var video = $(document.createElement('video'));
+    video.css({'width':'100%','height':'100%'});
+    video.get(0).src = "http://www.mediacollege.com/video/format/mpeg4/videofilename.mp4";
+    video.get(0).controls = true;
     tile.overlay.append(video);
-    jqvideo.show();
-    tile.overlay.show();
     $(document.body).append(tile.overlay);
-    tile.overlay.animate({'left':'5px','top':'5px','right':'5px','bottom':'5px'}, 250, function() {
-        video.play();
+    tile.overlay.fadeIn(700, function() {
+        video.get(0).play();
+    });
+};
+
+/** The current thumb cycle interval */
+var currentInterval;
+
+/**
+ * Cycles through the thumbs for a tile
+ * @param tile the tile to cycle
+ */
+var cycle_thumbs = function(tile) {
+    currentInterval = setInterval(function() {
+        if(tile.thumb_strip.left_offset < tile.thumb_strip.width()-242) {
+            tile.thumb_strip.left_offset += 121;
+            tile.thumb_strip.get(0).style.marginLeft = -tile.thumb_strip.left_offset+'px';
+        }
+        else {
+            tile.thumb_strip.get(0).style.marginLeft = '0px';
+            tile.thumb_strip.left_offset = 0;
+        }
+    }, 1500);
+};
+
+var get_live_videos = function(){
+    $.ajax({
+        type: 'GET', 
+        url: 'http://motherless.com/live',
+        dataType: 'html',
+        success: function(data) {
+            console.log('success!');
+            console.log($(data).find('.thumbnail mediatype_video'));
+        },
+        error:function (xhr, options, error){
+            alert(xhr.status+': '+error);
+        }
     });
 };
