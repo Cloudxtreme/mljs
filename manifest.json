@@ -1,0 +1,16 @@
+{
+	"name": "Motherless lite",
+	"version": "1.0.0",
+	"manifest_version": 2,
+	"description": "A lightweight version of Motherless",
+	"app": {
+		"background": {
+			"scripts": [
+				"ml_api.js",
+				"jquery.min.js",
+				"background.js"
+			]
+		}
+	},
+	"permissions": ["http://www.motherless.com/*"]
+}

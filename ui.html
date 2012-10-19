@@ -1,17 +1,20 @@
 <html>
     <head>
-    <script src="jquery_min.js"></script>
-    <script src="ml_api.js"></script>
+	<script src="http://html5.kaltura.org/js"></script>
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="ml_api.js"></script>
         <script>
             $(document).ready(function() {
-                for(var i = 0; i < 1; i++) {
-                    $(document.body).append(create_video_tile());
-                }
-                get_live_videos();
+                load_live_videos();
+				mw.setConfig( 'EmbedPlayer.NativeControlsMobileSafari', false );
             });
         </script>
     </head>
     <body style="background:#E3E3E3;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#b5bdc8), color-stop(31%,#828c95), color-stop(100%,#28343b)); /* Chrome,Safari4+ */
 background: -webkit-linear-gradient(top, #b5bdc8 0%,#828c95 31%,#28343b 100%); /* Chrome10+,Safari5.1+ */">
+
+<video controls width="720" height="306">
+  <source type="video/mp4" src="http://www.mediacollege.com/video/format/mpeg4/videofilename.mp4">
+</video>
     </body>
 </html>

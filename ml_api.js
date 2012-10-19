@@ -9,13 +9,14 @@ var add_video = function(thumbs_arr, vid_url) {
 /**
  * Creates the div that represents a video
  */
-var create_video_tile = function() {
+var create_video_tile = function(video) {
     
     // The target size of the file
     var tile_size = {width:'121px', height:'100px'};
     
     // Create the elements
     var tile = $(document.createElement('div'));
+	tile.video = video;
     tile.border_overlay = $(document.createElement('div'));
     var thumb_strip_container = $(document.createElement('div'));
     tile.thumb_strip = $(document.createElement('img'));
@@ -35,7 +36,7 @@ var create_video_tile = function() {
     tile.play_button.css({'background':'url(images/play.png) no-repeat center center','position':'absolute','z-index':'3', 'width':tile_size.width, 'height':tile_size.height});
     
     // Set other properties
-    tile.thumb_strip.get(0).src = 'http://thumbs.motherlessmedia.com/thumbs/08000F-strip.jpg';
+    tile.thumb_strip.get(0).src = video.thumbnail_url;
     tile.view_mode = 0; // 0 = inactive, 1 = thumbnail, 2 = playing
     tile.click(function() {
         if(tile.view_mode === 0) {
@@ -47,7 +48,7 @@ var create_video_tile = function() {
         }
         else if(tile.view_mode === 1) {
             // User has clicked the tile again, time to play the video
-            clearInterval(currentInterval);
+            clear_preview(tile);
             show_video_overlay(tile);
             tile.view_mode++;
         }
@@ -67,37 +68,54 @@ var create_video_tile = function() {
  */
 var show_video_overlay = function(tile) {
     tile.overlay = $(document.createElement('div'));
+	tile.overlay.attr("id", "overlay");
     tile.overlay.css({'clear':'both','position':'fixed','z-index':'4','backgroundColor':'#FF0000','border-radius':'15px','left':'5px','top':'5px','right':'5px','bottom':'5px','display':'none'});
     tile.overlay.click(function() {
         // Stop playing and go back to thumbnail mode
         tile.overlay.fadeOut(700, function() {
             tile.overlay.remove();
             tile.overlay = undefined;
-            tile.view_mode = 0;
-            tile.border_overlay.animate(tile.border_overlay.border_css, 1000);
-            tile.play_button.remove();
+            clear_preview(tile);
         });
     });
-    var video = $(document.createElement('video'));
-    video.css({'width':'100%','height':'100%'});
-    video.get(0).src = "http://www.mediacollege.com/video/format/mpeg4/videofilename.mp4";
-    video.get(0).controls = true;
-    tile.overlay.append(video);
-    $(document.body).append(tile.overlay);
+	$(document.body).append(tile.overlay);
+	jwplayer("overlay").setup({ 
+        flashplayer: "jwplayer/player.swf", 
+        file: 'http://content.bitsontherun.com/videos/lWMJeVvV-364767.mp4',//tile.video.url,
+		width: '100%',
+		height: '100%',
+		events: {
+            onReady: function() { this.play(); }
+        }
+    }); 
     tile.overlay.fadeIn(700, function() {
-        video.get(0).play();
+        //video.get(0).play();
     });
 };
 
+/**
+ * Clears the preview for the specified tile
+ * @param tile the tile to clear
+ */
+var clear_preview = function(tile) {
+	if(tile) {
+		clearInterval(tile.interval);
+		tile.view_mode = 0;
+		tile.border_overlay.animate(tile.border_overlay.border_css, 1000);
+		tile.play_button.remove();
+	}
+};
+
 /** The current thumb cycle interval */
-var currentInterval;
+var current_preview_tile;
 
 /**
  * Cycles through the thumbs for a tile
  * @param tile the tile to cycle
  */
 var cycle_thumbs = function(tile) {
-    currentInterval = setInterval(function() {
+	clear_preview(current_preview_tile);
+    tile.interval = setInterval(function() {
         if(tile.thumb_strip.left_offset < tile.thumb_strip.width()-242) {
             tile.thumb_strip.left_offset += 121;
             tile.thumb_strip.get(0).style.marginLeft = -tile.thumb_strip.left_offset+'px';
@@ -107,16 +125,23 @@ var cycle_thumbs = function(tile) {
             tile.thumb_strip.left_offset = 0;
         }
     }, 1500);
+	current_preview_tile = tile;
 };
 
-var get_live_videos = function(){
+var load_live_videos = function(){
     $.ajax({
         type: 'GET', 
-        url: 'http://motherless.com/live',
+        url: 'http://motherless.com/live/videos',
         dataType: 'html',
         success: function(data) {
-            console.log('success!');
-            console.log($(data).find('.thumbnail mediatype_video'));
+			// Build the videos
+			var videos;
+			$(data).find('div.thumbnail.mediatype_video > div > a').each(function() {
+				var video = {};
+				video.url = this.href;
+				video.thumbnail_url = 'http://thumbs.motherlessmedia.com/thumbs/'+this.rel+'-strip.jpg';
+				$(document.body).append(create_video_tile(video));
+			});
         },
         error:function (xhr, options, error){
             alert(xhr.status+': '+error);
