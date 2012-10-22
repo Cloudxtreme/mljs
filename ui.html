@@ -1,20 +1,15 @@
 <html>
     <head>
-	<script src="http://html5.kaltura.org/js"></script>
-    <script type="text/javascript" src="jquery.min.js"></script>
-    <script type="text/javascript" src="ml_api.js"></script>
-        <script>
-            $(document).ready(function() {
-                load_live_videos();
-				mw.setConfig( 'EmbedPlayer.NativeControlsMobileSafari', false );
-            });
-        </script>
+		<script type="text/javascript" src="jquery.min.js"></script>
+		<script type="text/javascript" src="ml_api.js"></script>
+		<script type='text/javascript' src='jwplayer/jwplayer.js'></script>
+		<link rel="stylesheet" type="text/css" href="skin/minimalist.css" />
     </head>
-    <body style="background:#E3E3E3;background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#b5bdc8), color-stop(31%,#828c95), color-stop(100%,#28343b)); /* Chrome,Safari4+ */
-background: -webkit-linear-gradient(top, #b5bdc8 0%,#828c95 31%,#28343b 100%); /* Chrome10+,Safari5.1+ */">
-
-<video controls width="720" height="306">
-  <source type="video/mp4" src="http://www.mediacollege.com/video/format/mpeg4/videofilename.mp4">
-</video>
-    </body>
+    <body style="background:#6F6F7A">
+		<span id="content"></span>
+		<div style="clear:both"></div>
+		<div id="video_overlay" style="clear:both;position:fixed;z-index:4;background-color:rgba(59,59,59,.94);border-radius:15px;left:5px;top:5px;right:5px;bottom:5px;display:none">
+				<video id="video_player" class="jwplayer"></video>
+		</div>
+	</body>
 </html>

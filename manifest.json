@@ -4,13 +4,9 @@
 	"manifest_version": 2,
 	"description": "A lightweight version of Motherless",
 	"app": {
-		"background": {
-			"scripts": [
-				"ml_api.js",
-				"jquery.min.js",
-				"background.js"
-			]
+		"launch": {
+			"local_path": "ui.html"
 		}
 	},
-	"permissions": ["http://www.motherless.com/*"]
+	"permissions": ["*://*.motherless.com/*"]
 }
