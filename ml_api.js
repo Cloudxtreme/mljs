@@ -63,6 +63,7 @@ var load_live_videos = function(){
 						video.taboo =  get_taboo_tag(video.title);
 						
 						console.log(video.title+' | '+video.author+' | '+video.length);
+						current_videos.push(video.id);
 						new_videos.push(video);
 					}
 				});
