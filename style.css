@@ -1,2 +1,18 @@
-a {color:#FFF;text-decoration:none;font-size:9px;}
-a:visited {color:#9C9C9C;}
+html{font-size:9px;font-family:Droid Sans,sans-serif}
+a{color:#FFF;text-decoration:none}
+a:visited{color:#9C9C9C}
+.togglebutton {
+	padding:5px;
+	float:left;
+	font-size:9px;
+	color:#CCC;
+	background-color:inherit;
+	cursor:pointer;
+	border-radius:5px
+}
+.togglebutton:hover {
+	background-color:rgba(100,100,100,.80)
+}
+.togglebutton.down {
+	background-color:rgba(100,100,100,.80)
+}

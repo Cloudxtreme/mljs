@@ -53,11 +53,13 @@ var load_live_videos = function(){
 					if(current_videos.indexOf(video_link.rel) == -1) {
 						var meta_wrapper = $(this).children('div.thumbnail-meta');
 						var video = {};
+						var b_u = 'http://motherless.com/'; // The base url
 						video.author = meta_wrapper.children('div.thumbnail-info.left.ellipsis').not('.small').text().trim();
+						video.author_url = b_u+'u/'+video.author;
 						video.length = meta_wrapper.children('div.thumbnail-info.right.ellipsis').not('.small').text().trim();
 						video.id = video_link.rel;
-						video.url = 'http://motherless.com/view/frame?item='+video.id;
-						video.full_url = 'http://motherless.com/'+video.id;
+						video.url = b_u+'view/frame?item='+video.id;
+						video.full_url = b_u+video.id;
 						video.title = video_link.title;
 						video.thumbnail_url = 'http://thumbs.motherlessmedia.com/thumbs/'+video.id+'-strip.jpg';
 						video.taboo =  get_taboo_tag(video.title);
