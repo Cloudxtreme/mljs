@@ -8,6 +8,9 @@ var current_preview_tile;
 // The video player overlay
 var video_overlay;
 
+// Whether or not the user is browsing a single author
+var author_mode;
+
 // Creates a tile for the specified video
 var create_video_tile = function(video) {
 	
@@ -39,7 +42,8 @@ var create_video_tile = function(video) {
 	tile.thumb_strip.left_offset = 0;
     tile.thumb_strip.get(0).src = video.thumbnail_url;
     tile.view_mode = 0; // 0 = inactive, 1 = thumbnail, 2 = playing
-    tile.click(function() {
+    tile.click(function(evt) {
+        evt.stopPropagation();
         if(tile.view_mode === 0) {
             // First click, show thumbnail/slideshow
 			tile.view_mode++;
@@ -57,14 +61,31 @@ var create_video_tile = function(video) {
 	// Build the tile
 	thumb_strip_container.append(new_ttl.append($(document.createElement('a')).prop('href',video.full_url).append(video.title)))
 		.append(tile.thumb_strip)
-		.append(new_nfo.append(video.length).append(' | ').append(video.author)); // TODO bind click evt to load authors vids in drawer
+		.append(new_nfo.append(video.length).append(' | ').append(video.author).click(function(evt) {
+            evt.stopPropagation();
+            if(!author_mode) {
+                load_user_videos(video.author,function(cbv) {
+                    if(cbv.length > 0) {
+                        author_mode = true;
+                        $(cbv).each(function() {
+                            $(drawer).append(create_video_tile(this));
+                        });
+                        // Open the drawer
+                        $(drawer).fadeIn(700, function() {
+                            // Hide normal content
+                            $(content).hide();
+                        });   
+                    }
+                });
+            }
+        }));
     tile.append(thumb_strip_container);
     tile.append(tile.border_overlay);
 	
 	// Add taboo notification if applicable
     if(video.taboo) {
 		tile.icon_overlay = $(document.createElement('div'));
-		tile.icon_overlay.prop('title','tagged as '+video.taboo).css({'background':'url(images/'+video.taboo+'.png) no-repeat center center','width':'24px','height':'24px','position':'absolute','right':'3px','top':'17px','z-index':'3'})
+		tile.icon_overlay.prop('title','tagged as '+video.taboo).css({'background':'url(images/'+video.taboo+'.png) no-repeat center center','width':'24px','height':'24px','position':'absolute','right':'3px','top':'17px'})
 		.appendTo(tile.border_overlay);
 	}
 	
@@ -93,7 +114,7 @@ var cycle_thumbs = function(tile) {
 
 // Clears the preview for the specified tile
 var clear_preview = function(tile) {
-	if(tile) { // TODO why??
+	if(tile) {
 		clearInterval(tile.interval);
 		tile.view_mode = 0;
 		tile.border_overlay.css(tile.border_overlay.border_css, 1000);
@@ -114,15 +135,22 @@ $(window).scroll(load_by_scroll);
 // Things to do when the app is done loading
 $(document).ready(function() {
 	// Initialize UI event handlers
-	$('#btn2d').click(function(){
-        $(this).toggleClass('down');
-        $('#btn3d').prop('class','togglebutton');
+    var drw = $(drawer);
+    $(drw).click(function() {
+        author_mode = false;
+        $(drw).fadeOut(700, function() {
+            $('#content').show();
+            $(drw).empty();
+        });
     });
-    $('#btn3d').click(function(){
+	$(btn2d).click(function(){
         $(this).toggleClass('down');
-        $('#btn2d').prop('class','togglebutton');
+        $(btn3d).prop('class','togglebutton');
     });
-    console.log($('.togglebutton'));
+    $(btn3d).click(function(){
+        $(this).toggleClass('down');
+        $(btn2d).prop('class','togglebutton');
+    });
 	video_overlay = $('#video_overlay');
 	video_overlay.click(function() {
 		$('#video_frame').prop('src','');
@@ -130,7 +158,7 @@ $(document).ready(function() {
             clear_preview(current_preview_tile);
         });
 	});
-	
+    
 	// Begin loading live videos
 	loaded_videos_callbacks.push(function(videos) {
 		$(videos).each(function() {

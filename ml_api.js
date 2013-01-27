@@ -46,30 +46,11 @@ var load_live_videos = function(){
 			dataType: 'html',
 			success: function(data) {
 				load_timeout = setTimeout(load_timeout_callback, 15000);
-				var new_videos = new Array();
-				$(data).find('div.thumbnail.mediatype_video').each(function() {
-					var video_link = $(this).children('div.thumbnail-img-wrap').children('a').get(0);
-					
-					if(current_videos.indexOf(video_link.rel) == -1) {
-						var meta_wrapper = $(this).children('div.thumbnail-meta');
-						var video = {};
-						var b_u = 'http://motherless.com/'; // The base url
-						video.author = meta_wrapper.children('div.thumbnail-info.left.ellipsis').not('.small').text().trim();
-						video.author_url = b_u+'u/'+video.author;
-						video.length = meta_wrapper.children('div.thumbnail-info.right.ellipsis').not('.small').text().trim();
-						video.id = video_link.rel;
-						video.url = b_u+'view/frame?item='+video.id;
-						video.full_url = b_u+video.id;
-						video.title = video_link.title;
-						video.thumbnail_url = 'http://thumbs.motherlessmedia.com/thumbs/'+video.id+'-strip.jpg';
-						video.taboo =  get_taboo_tag(video.title);
-						
-						console.log(video.title+' | '+video.author+' | '+video.length);
-						current_videos.push(video.id);
-						new_videos.push(video);
-					}
+				var new_videos = parse_videos(data);
+				$(new_videos).each(function() {
+					current_videos.push(this.id);
 				});
-				
+
 				videos_are_loading = false;
 				
 				// Let our callbacks know we're done
@@ -87,6 +68,49 @@ var load_live_videos = function(){
 	else if(load_timeout) {
 		reload_after_timeout = true;
 	}
+};
+
+// Loads a user's videos
+var load_user_videos = function(user,callback) {
+	$.ajax({
+		type: 'GET', 
+		url: 'http://motherless.com/u/'+user+'?t=v',
+		dataType: 'html',
+		success: function(data) {
+			var new_videos = parse_videos(data);
+			if(new_videos.length > 0) {
+				callback(new_videos);
+			}
+		}
+	});
+};
+
+// Parses video objects from the specified source
+var parse_videos = function(src) {
+	var new_videos = new Array();
+	var new_videos_ids = new Array();
+	$(src).find('div.thumbnail.mediatype_video').each(function() {
+		var video_link = $(this).children('div.thumbnail-img-wrap').children('a').get(0);
+		if(current_videos.indexOf(video_link.rel) == -1 && new_videos_ids.indexOf(video_link.rel) == -1) {
+			var meta_wrapper = $(this).children('div.thumbnail-meta');
+			var video = {};
+			var b_u = 'http://motherless.com/'; // The base url
+			video.author = meta_wrapper.children('div.thumbnail-info.left.ellipsis').not('.small').text().trim();
+			video.author_url = b_u+'u/'+video.author;
+			video.length = meta_wrapper.children('div.thumbnail-info.right.ellipsis').not('.small').text().trim();
+			video.id = video_link.rel;
+			video.url = b_u+'view/frame?item='+video.id;
+			video.full_url = b_u+video.id;
+			video.title = video_link.title;
+			video.thumbnail_url = 'http://thumbs.motherlessmedia.com/thumbs/'+video.id+'-strip.jpg';
+			video.taboo =  get_taboo_tag(video.title);
+			
+			console.log('@@-- '+video.title+' | '+video.author+' | '+video.length);
+			new_videos.push(video);
+			new_videos_ids.push(video.id);
+		}
+	});
+	return new_videos;
 };
 
 // Uhhhhhh doc?
