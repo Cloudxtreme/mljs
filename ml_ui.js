@@ -11,12 +11,14 @@ var video_overlay;
 // Whether or not the user is browsing a single author
 var author_mode;
 
+// Count of columns per row
+var col_ct;
+
+// Target size for tiles
+var tile_size = {width:'121px',height:'100px',margin:'5px'};
+
 // Creates a tile for the specified video
 var create_video_tile = function(video) {
-	
-    // The target size of the file
-    var tile_size = {width:'121px',height:'100px',margin:'5px'};
-    
     // Create the elements required for a tile
     var tile = $(document.createElement('div'));
     tile.border_overlay = $(document.createElement('div'));
@@ -134,13 +136,24 @@ $(window).scroll(load_by_scroll);
 
 // Things to do when the app is done loading
 $(document).ready(function() {
-	// Initialize UI event handlers
+	// Initialize UI
+    var con = $('#content');
+    col_ct = con.width()/(parseInt(tile_size.width)+parseInt(tile_size.margin)*2);
+    alert(col_ct);
+    con.mousewheel(function(e,d) {
+        if(d > 0) { // Scroll up
+            alert('up');
+        }
+        else { // Scroll down
+            alert('down');
+        }
+    });
     var drw = $(drawer);
-    $(drw).click(function() {
+    drw.click(function() {
         author_mode = false;
-        $(drw).fadeOut(700, function() {
-            $('#content').show();
-            $(drw).empty();
+        drw.fadeOut(700, function() {
+            con.show();
+            drw.empty();
         });
     });
 	$(btn2d).click(function(){
