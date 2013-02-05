@@ -154,7 +154,7 @@ var display_next_videos = function() {
         $('#content').append(create_video_tile(loaded_videos[i]));
     };
     scrolled_rows++;
-    console.log('Displayed video '+start_index+' through '+end_index);
+    console.log('Displayed video '+start_index+' through '+end_index+', '+(loaded_videos.length-end_index)+' videos left');
 
     // See if we need to fetch more
     if(loaded_videos.length-end_index < tile_col_count*10) {
@@ -168,9 +168,19 @@ var tile_margins = parseInt(tile_size.margin)*2;
 
 // Recalculate tile row/col counts
 var recalculate_counts = function() {
+    var off = scrolled_rows*tile_col_count;
+    var old_grid = tile_col_count*tile_row_count+off;
     var con = $('#content');
-    tile_col_count = Math.floor(con.width()/(parseInt(tile_size.width)+tile_margins));
-    tile_row_count = Math.ceil(con.height()/(parseInt(tile_size.height)+tile_margins));
+    tile_col_count = Math.floor(con.parent().width()/(parseInt(tile_size.width)+tile_margins));
+    tile_row_count = Math.ceil(con.parent().height()/(parseInt(tile_size.height)+tile_margins));
+    con.css({'width':(tile_col_count*(parseInt(tile_size.width)+tile_margins))+'px'});
+    var new_grid =  tile_col_count*tile_row_count+off;
+    if(old_grid < new_grid) {
+        for (var i = old_grid; i < new_grid; i++) {
+            $('#content').append(create_video_tile(loaded_videos[i])); // TODO array out of bounds (upper)
+        };
+        console.log('Displayed video '+old_grid+' through '+new_grid);
+    };
     console.log('New counts: col:'+tile_col_count+' row:'+tile_row_count+' grid:'+tile_row_count*tile_col_count);
 };
 
@@ -192,8 +202,9 @@ $(document).ready(function() {
 
         }
         else if(display_next_videos()) { // Scroll down
-            $('#content > div:lt('+tile_col_count+')').slideUp(250, function() {
-                $(this).remove();
+            con.animate({'margin-top':'-='+(parseInt(tile_size.width)+tile_margins)+'px'}, 250, function() {
+                $('#content > div:lt('+tile_col_count+')').remove();
+                con.css({'margin-top':'0px'});
             });
         }
     });
@@ -202,8 +213,9 @@ $(document).ready(function() {
 
         }
         else if(e.which === 40 && display_next_videos()) { // down
-            $('#content > div:lt('+tile_col_count+')').slideUp(250, function() {
-                $(this).remove();
+            con.animate({'margin-top':'-='+(parseInt(tile_size.width)+tile_margins)+'px'}, 250, function() {
+                $('#content > div:lt('+tile_col_count+')').remove();
+                con.css({'margin-top':'0px'});
             });
         }
     });
@@ -213,9 +225,8 @@ $(document).ready(function() {
             clearTimeout(resize_timeout);
         }
         resize_timeout = setTimeout(function() {
-            // TODO Recalculate sizes
             recalculate_counts();
-        }, 2000);
+        }, 1500);
     });
     var drw = $(drawer);
     drw.click(function() {
