@@ -11,11 +11,8 @@ var video_overlay;
 // Whether or not the user is browsing a single author
 var author_mode;
 
-// Count of columns per row
-var col_ct;
-
 // Target size for tiles
-var tile_size = {width:'121px',height:'100px',margin:'5px'};
+var tile_size = {width:'121px',height:'130px',margin:'5px'};
 
 // Creates a tile for the specified video
 var create_video_tile = function(video) {
@@ -54,9 +51,8 @@ var create_video_tile = function(video) {
         }
         else if(tile.view_mode === 1) {
             // User has clicked the tile again, time to play the video
-            clear_preview(tile);
-			$('#video_frame').prop('src','http://motherless.com/view/frame?item='+tile.video.id).load(video_overlay.fadeIn(700));
-            tile.view_mode++;
+            clear_preview();
+			$('#video_frame').attr('src','http://motherless.com/view/frame?item='+tile.video.id).load(video_overlay.fadeIn(700));
         }
     });
 
@@ -75,7 +71,7 @@ var create_video_tile = function(video) {
                         // Open the drawer
                         $(drawer).fadeIn(700, function() {
                             // Hide normal content
-                            $(content).hide();
+                            $('#content').hide();
                         });   
                     }
                 });
@@ -96,7 +92,7 @@ var create_video_tile = function(video) {
 
 // Cycles through the thumbs for the specified tile // TODO remove hardcoded values!
 var cycle_thumbs = function(tile) {
-	clear_preview(current_preview_tile);
+	clear_preview();
 	// Used for cycling immediatly
 	var cycle = function() {
 		if(tile.thumb_strip.left_offset < tile.thumb_strip.width()-242) {
@@ -115,38 +111,111 @@ var cycle_thumbs = function(tile) {
 };
 
 // Clears the preview for the specified tile
-var clear_preview = function(tile) {
-	if(tile) {
-		clearInterval(tile.interval);
-		tile.view_mode = 0;
-		tile.border_overlay.css(tile.border_overlay.border_css, 1000);
+var clear_preview = function() {
+	if(current_preview_tile) {
+		clearInterval(current_preview_tile.interval);
+		current_preview_tile.view_mode = 0;
+		current_preview_tile.border_overlay.css(current_preview_tile.border_overlay.border_css, 1000);
+        current_preview_tile = null;
 	}
 };
 
-// Load more videos when the bottom of the page is approaching
-var load_by_scroll = function() {
+// The timeout for recalculating row/col counts
+var resize_timeout;
 
-	// TODO Needs to hide stale content?
-	if(($(document.body).scrollTop() + document.body.clientHeight)/document.documentElement.clientHeight >= .7) {
-		console.log('Scroll pos dictates load!');
-		load_live_videos();
-	}
+// The tile row count
+var tile_row_count;
+
+// The tile column count
+var tile_col_count;
+
+// The videos that have been loaded
+var loaded_videos = new Array();
+
+var display_video_tiles = function() {
+    var end_index = tile_row_count*tile_col_count;
+    for (var i = 0; i < end_index; i++) {
+        $('#content').append(create_video_tile(loaded_videos[i]));
+    };
+    console.log('display_video_tiles() - start:0 end:'+end_index);
 };
-$(window).scroll(load_by_scroll);
+
+var scrolled_rows = 0;
+
+var display_next_videos = function() {
+    var start_index = tile_row_count*tile_col_count;
+    start_index += scrolled_rows*tile_col_count; // maybe
+    var end_index = start_index+tile_col_count;
+    for (var i = start_index; i < end_index; i++) {
+        if(end_index >= loaded_videos.length) {
+            console.log('Out of videos!');
+            return false;
+        }
+        $('#content').append(create_video_tile(loaded_videos[i]));
+    };
+    scrolled_rows++;
+    console.log('Displayed video '+start_index+' through '+end_index);
+
+    // See if we need to fetch more
+    if(loaded_videos.length-end_index < tile_col_count*10) {
+        console.log(loaded_videos.length-end_index+'<'+tile_col_count*8+', Loading more videos in the background..');
+        load_live_videos(add_loaded);
+    }
+    return true;
+};
+
+var tile_margins = parseInt(tile_size.margin)*2;
+
+// Recalculate tile row/col counts
+var recalculate_counts = function() {
+    var con = $('#content');
+    tile_col_count = Math.floor(con.width()/(parseInt(tile_size.width)+tile_margins));
+    tile_row_count = Math.ceil(con.height()/(parseInt(tile_size.height)+tile_margins));
+    console.log('New counts: col:'+tile_col_count+' row:'+tile_row_count+' grid:'+tile_row_count*tile_col_count);
+};
+
+var add_loaded = function(videos) {
+    $(videos).each(function() {
+        loaded_videos.push(this);
+    });
+};
 
 // Things to do when the app is done loading
 $(document).ready(function() {
 	// Initialize UI
     var con = $('#content');
-    col_ct = con.width()/(parseInt(tile_size.width)+parseInt(tile_size.margin)*2);
-    alert(col_ct);
-    con.mousewheel(function(e,d) {
+
+    recalculate_counts();
+
+    $(document).mousewheel(function(e,d) {
         if(d > 0) { // Scroll up
-            alert('up');
+
         }
-        else { // Scroll down
-            alert('down');
+        else if(display_next_videos()) { // Scroll down
+            $('#content > div:lt('+tile_col_count+')').slideUp(250, function() {
+                $(this).remove();
+            });
         }
+    });
+    $(document).keyup(function(e) {
+        if(e.which === 38) { // up
+
+        }
+        else if(e.which === 40 && display_next_videos()) { // down
+            $('#content > div:lt('+tile_col_count+')').slideUp(250, function() {
+                $(this).remove();
+            });
+        }
+    });
+    $(window).resize(function() {
+        // Set the timeout
+        if(resize_timeout) {
+            clearTimeout(resize_timeout);
+        }
+        resize_timeout = setTimeout(function() {
+            // TODO Recalculate sizes
+            recalculate_counts();
+        }, 2000);
     });
     var drw = $(drawer);
     drw.click(function() {
@@ -173,10 +242,9 @@ $(document).ready(function() {
 	});
     
 	// Begin loading live videos
-	loaded_videos_callbacks.push(function(videos) {
-		$(videos).each(function() {
-			$(content).append(create_video_tile(this));
-		});
-	});
-	load_live_videos();
+    load_live_videos(function(videos) {
+        add_loaded(videos);
+        console.log('Videos: '+loaded_videos.length);
+        display_video_tiles();
+    });
 });
