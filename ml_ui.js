@@ -46,7 +46,7 @@ var create_video_tile = function(video) {
         if(tile.view_mode === 0) {
             // First click, show thumbnail/slideshow
 			tile.view_mode++;
-			tile.border_overlay.css({'background-position-x':'-121'});
+			tile.border_overlay.css({'background-position-x':parseInt(tile_size.width)});
 			cycle_thumbs(tile);
         }
         else if(tile.view_mode === 1) {
@@ -65,14 +65,11 @@ var create_video_tile = function(video) {
                 load_user_videos(video.author,function(cbv) {
                     if(cbv.length > 0) {
                         author_mode = true;
+                        var con = $('#content');
+                        con.empty();
                         $(cbv).each(function() {
-                            $(drawer).append(create_video_tile(this));
-                        });
-                        // Open the drawer
-                        $(drawer).fadeIn(700, function() {
-                            // Hide normal content
-                            $('#content').hide();
-                        });   
+                            con.append(create_video_tile(this));
+                        });  
                     }
                 });
             }
@@ -90,14 +87,15 @@ var create_video_tile = function(video) {
     return tile.get(0);
 };
 
-// Cycles through the thumbs for the specified tile // TODO remove hardcoded values!
+// Cycles through the thumbs for the specified tile
 var cycle_thumbs = function(tile) {
 	clear_preview();
 	// Used for cycling immediatly
 	var cycle = function() {
-		if(tile.thumb_strip.left_offset < tile.thumb_strip.width()-242) {
+        var t_wid = parseInt(tile_size.width);
+		if(tile.thumb_strip.left_offset < tile.thumb_strip.width()-t_wid*2) {
 			
-            tile.thumb_strip.left_offset += 121;
+            tile.thumb_strip.left_offset += t_wid;
             tile.thumb_strip.get(0).style.marginLeft = -tile.thumb_strip.left_offset+'px';
         }
         else {
@@ -143,25 +141,49 @@ var display_video_tiles = function() {
 var scrolled_rows = 0;
 
 var display_next_videos = function() {
-    var start_index = tile_row_count*tile_col_count;
-    start_index += scrolled_rows*tile_col_count; // maybe
-    var end_index = start_index+tile_col_count;
-    for (var i = start_index; i < end_index; i++) {
-        if(end_index >= loaded_videos.length) {
-            console.log('Out of videos!');
-            return false;
-        }
-        $('#content').append(create_video_tile(loaded_videos[i]));
-    };
-    scrolled_rows++;
-    console.log('Displayed video '+start_index+' through '+end_index+', '+(loaded_videos.length-end_index)+' videos left');
+    if(!author_mode) {
+        var start_index = tile_row_count*tile_col_count;
+        start_index += scrolled_rows*tile_col_count;
+        var end_index = start_index+tile_col_count;
+        for (var i = start_index; i < end_index; i++) {
+            if(end_index >= loaded_videos.length) {
+                console.log('Out of videos!');
+                return false;
+            }
+            $('#content').append(create_video_tile(loaded_videos[i]));
+        };
+        scrolled_rows++;
+        console.log('Displayed video '+start_index+' through '+end_index+', '+(loaded_videos.length-end_index)+' videos left');
 
-    // See if we need to fetch more
-    if(loaded_videos.length-end_index < tile_col_count*10) {
-        console.log(loaded_videos.length-end_index+'<'+tile_col_count*8+', Loading more videos in the background..');
-        load_live_videos(add_loaded);
+        // See if we need to fetch more
+        if(loaded_videos.length-end_index < tile_col_count*10) {
+            console.log(loaded_videos.length-end_index+'<'+tile_col_count*8+', Loading more videos in the background..');
+            load_live_videos(add_loaded);
+        }
+        return true;    
     }
-    return true;
+    else {
+        console.log('In author mode, not loading more videos!');
+        return true;
+    }
+};
+
+// LOL..this has to be a thing at some point!
+var display_previous_videos = function() {
+    if(scrolled_rows > 0) {
+        scrolled_rows--;
+        var start_index = scrolled_rows*tile_col_count;
+        var end_index = start_index+tile_col_count;
+        for(var i = end_index-1; i >= start_index; i--) {
+            $('#content').prepend(create_video_tile(loaded_videos[i]));
+            console.log('Prepended '+i);
+        }
+        console.log('display_previous_videos() - start:'+start_index+' end:'+end_index);
+        return true;
+    }
+    else {
+        return false;
+    }
 };
 
 var tile_margins = parseInt(tile_size.margin)*2;
@@ -198,22 +220,30 @@ $(document).ready(function() {
     recalculate_counts();
 
     $(document).mousewheel(function(e,d) {
-        if(d > 0) { // Scroll up
-
+        if(d > 0 && display_previous_videos()) { // Scroll up
+            con.css({'margin-top':'-='+(parseInt(tile_size.height)+tile_margins)+'px'});
+            con.animate({'margin-top':'+='+(parseInt(tile_size.height)+tile_margins)+'px'}, 250, function() {
+                $('#content > div:gt('+(tile_row_count*tile_col_count)+')').remove();
+                con.css({'margin-top':'0px'});
+            });
         }
         else if(display_next_videos()) { // Scroll down
-            con.animate({'margin-top':'-='+(parseInt(tile_size.width)+tile_margins)+'px'}, 250, function() {
+            con.animate({'margin-top':'-='+(parseInt(tile_size.height)+tile_margins)+'px'}, 250, function() {
                 $('#content > div:lt('+tile_col_count+')').remove();
                 con.css({'margin-top':'0px'});
             });
         }
     });
     $(document).keyup(function(e) {
-        if(e.which === 38) { // up
-
+        if(e.which === 38 && display_previous_videos()) { // up
+            con.css({'margin-top':'-='+(parseInt(tile_size.height)+tile_margins)+'px'});
+            con.animate({'margin-top':'+='+(parseInt(tile_size.height)+tile_margins)+'px'}, 250, function() {
+                $('#content > div:gt('+(tile_row_count*tile_col_count)+')').remove();
+                con.css({'margin-top':'0px'});
+            });
         }
         else if(e.which === 40 && display_next_videos()) { // down
-            con.animate({'margin-top':'-='+(parseInt(tile_size.width)+tile_margins)+'px'}, 250, function() {
+            con.animate({'margin-top':'-='+(parseInt(tile_size.height)+tile_margins)+'px'}, 250, function() {
                 $('#content > div:lt('+tile_col_count+')').remove();
                 con.css({'margin-top':'0px'});
             });
@@ -227,14 +257,6 @@ $(document).ready(function() {
         resize_timeout = setTimeout(function() {
             recalculate_counts();
         }, 1500);
-    });
-    var drw = $(drawer);
-    drw.click(function() {
-        author_mode = false;
-        drw.fadeOut(700, function() {
-            con.show();
-            drw.empty();
-        });
     });
 	$(btn2d).click(function(){
         $(this).toggleClass('down');

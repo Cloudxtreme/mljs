@@ -104,14 +104,14 @@ var parse_videos = function(src) {
 			var meta_wrapper = $(this).children('div.thumbnail-meta');
 			var video = {};
 			var b_u = 'http://motherless.com/'; // The base url
-			video.author = 'author';//meta_wrapper.children('div.thumbnail-info.left.ellipsis').not('.small').text().trim(); // TODO
+			video.author = meta_wrapper.children('div.thumbnail-info.left.ellipsis').not('.small').text().trim();
 			video.author_url = b_u+'u/'+video.author;
 			video.length = meta_wrapper.children('div.thumbnail-info.right.ellipsis').not('.small').text().trim();
 			video.id = video_link.rel;
 			video.url = b_u+'view/frame?item='+video.id;
 			video.full_url = b_u+video.id;
-			video.title = 'video';//video_link.title; // TODO
-			video.thumbnail_url = 'http://thumbs.motherlessmedia.com/thumbs/'+video.id+'-strip.jpg'; // TODO
+			video.title = video_link.title;
+			video.thumbnail_url = 'http://thumbs.motherlessmedia.com/thumbs/'+video.id+'-strip.jpg';
 			video.taboo =  get_taboo_tag(video.title);
 			
 			console.log('@@-- '+video.title+' | '+video.author+' | '+video.length);
@@ -122,7 +122,7 @@ var parse_videos = function(src) {
 	return new_videos;
 };
 
-// Uhhhhhh doc?
+// TODO doc
 var load_timeout;
 var reload_after_timeout;
 var videos_are_loading;
