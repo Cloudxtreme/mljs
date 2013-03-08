@@ -10,7 +10,7 @@ var loaded_videos_callbacks = new Array();
 
 // Tags that indicate a taboo
 var taboo_tags = {
-	'scat':['toilet','shit','poop','piss','pee','dump','crap','scat','diarrhea','turd','enema','puk','vomit','diaper','constipat'],
+	'scat':['toilet','shit','poop','piss','pee','dump','crap','scat','diarrhea','turd','enema','puk','vomit','diaper','constipat','fart'],
 	'gore':['gore','death','kill','snuff','dead','murder','stab','blood','bleeding','gun','beat','fight'],
 	'gay':['gay','homo','fag','queer','twink','shemale','tran','trap'],
 	'beast':['beast','animal','dog','horse'],

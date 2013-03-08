@@ -14,6 +14,9 @@ var author_mode;
 // Target size for tiles
 var tile_size = {width:'121px',height:'130px',margin:'5px'};
 
+// The amount of rows that have been scrolled down
+var scrolled_rows = 0;
+
 // Creates a tile for the specified video
 var create_video_tile = function(video) {
     // Create the elements required for a tile
@@ -31,6 +34,8 @@ var create_video_tile = function(video) {
     tile.border_overlay.css(tile.border_overlay.border_css);
     thumb_strip_container.css(b_s).css({'position':'relative','float':'left','border-top-left-radius':'15px','border-top-right-radius':'15px','height':'130px'});
     tile.css(b_s).css({'border-radius':'15px','background':'#454545','position':'relative','margin':tile_size.margin,'float':'left','cursor':'pointer'});
+
+    // TODO Remove hardcode, implement scaling!
     tile.thumb_strip.css({'margin-top':'15px','width':'607px','height':'100'});
     var c_s = {'position':'absolute','left':'15px','right':'15px','height':'13px','overflow':'hidden','white-space':'nowrap'};
     new_ttl.css(c_s).css({'top':'2px'});
@@ -138,8 +143,7 @@ var display_video_tiles = function() {
     console.log('display_video_tiles() - start:0 end:'+end_index);
 };
 
-var scrolled_rows = 0;
-
+// Displays the next row of videos
 var display_next_videos = function() {
     if(!author_mode) {
         var start_index = tile_row_count*tile_col_count;
@@ -168,7 +172,8 @@ var display_next_videos = function() {
     }
 };
 
-// LOL..this has to be a thing at some point!
+// Displays the previous row of videos
+// TODO fix concurrency issue
 var display_previous_videos = function() {
     if(scrolled_rows > 0) {
         scrolled_rows--;
