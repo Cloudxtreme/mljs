@@ -133,13 +133,13 @@ var tile_row_count;
 var tile_col_count;
 
 // The videos that have been loaded
-var loaded_videos = new Array();
+var loaded_videos = [];
 
 var display_video_tiles = function() {
     var end_index = tile_row_count*tile_col_count;
     for (var i = 0; i < end_index; i++) {
         $('#content').append(create_video_tile(loaded_videos[i]));
-    };
+    }
     console.log('display_video_tiles() - start:0 end:'+end_index);
 };
 
@@ -155,7 +155,7 @@ var display_next_videos = function() {
                 return false;
             }
             $('#content').append(create_video_tile(loaded_videos[i]));
-        };
+        }
         scrolled_rows++;
         console.log('Displayed video '+start_index+' through '+end_index+', '+(loaded_videos.length-end_index)+' videos left');
 
@@ -205,9 +205,9 @@ var recalculate_counts = function() {
     if(old_grid < new_grid) {
         for (var i = old_grid; i < new_grid; i++) {
             $('#content').append(create_video_tile(loaded_videos[i])); // TODO array out of bounds (upper)
-        };
+        }
         console.log('Displayed video '+old_grid+' through '+new_grid);
-    };
+    }
     console.log('New counts: col:'+tile_col_count+' row:'+tile_row_count+' grid:'+tile_row_count*tile_col_count);
 };
 

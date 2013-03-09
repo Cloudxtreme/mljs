@@ -3,10 +3,10 @@
 // Whired
 
 // Videos that have been loaded already
-var current_videos = new Array();
+var current_videos = [];
 
 // Video load callbacks
-var loaded_videos_callbacks = new Array();
+var loaded_videos_callbacks = [];
 
 // Tags that indicate a taboo
 var taboo_tags = {
@@ -62,7 +62,7 @@ var load_live_videos = function(on_load){
 						$(loaded_videos_callbacks).each(function() {
 							this(new_videos);
 						});
-						loaded_videos_callbacks = new Array(); // Clear them out?
+						loaded_videos_callbacks = []; // Clear them out
 						videos_are_loading = false;
 					}
 				}
@@ -96,8 +96,8 @@ var load_user_videos = function(user,callback) {
 
 // Parses video objects from the specified source
 var parse_videos = function(src) {
-	var new_videos = new Array();
-	var new_videos_ids = new Array();
+	var new_videos = [];
+	var new_videos_ids = [];
 	$(src).find('div.thumbnail.mediatype_video').each(function() {
 		var video_link = $(this).children('div.thumbnail-img-wrap').children('a').get(0);
 		if(current_videos.indexOf(video_link.rel) == -1 && new_videos_ids.indexOf(video_link.rel) == -1) {
