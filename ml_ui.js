@@ -142,7 +142,7 @@ var close_overlay = function() {
 
 // Resets the entire grid and displays it again
 var display_video_tiles = function() {
-    $('content').empty();
+    $('#content').empty();
     var start_index = scrolled_rows*tile_col_count;
     var end_index = start_index+tile_row_count*tile_col_count;
     if(end_index < loaded_videos.length) {
@@ -152,8 +152,8 @@ var display_video_tiles = function() {
     }
     else {
         // grab more
-        load_live_videos(function() {
-            add_loaded();
+        load_live_videos(function(videos) {
+            add_loaded(videos);
             display_video_tiles();
         });
     }
@@ -265,6 +265,7 @@ $(document).ready(function() {
                 display_video_tiles();
             }
             else if($('video_overlay').is(':visible')) {
+                console.log('Closing overlay..');
                 close_overlay();
             }
         }
@@ -290,10 +291,6 @@ $(document).ready(function() {
 		close_overlay();
 	});
     
-	// Begin loading live videos
-    load_live_videos(function(videos) {
-        add_loaded(videos);
-        console.log('Videos: '+loaded_videos.length);
-        display_video_tiles();
-    });
+    // Finally, show some videos
+    display_video_tiles();
 });
