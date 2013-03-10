@@ -146,7 +146,7 @@ var display_video_tiles = function() {
     var start_index = scrolled_rows*tile_col_count;
     var end_index = start_index+tile_row_count*tile_col_count;
     if(end_index < loaded_videos.length) {
-        for (var i = 0; i < end_index; i++) {
+        for (var i = start_index; i < end_index; i++) {
             $('#content').append(create_video_tile(loaded_videos[i]));
         }
     }
