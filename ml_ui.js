@@ -145,8 +145,17 @@ var display_video_tiles = function() {
     $('content').empty();
     var start_index = scrolled_rows*tile_col_count;
     var end_index = start_index+tile_row_count*tile_col_count;
-    for (var i = 0; i < end_index; i++) {
-        $('#content').append(create_video_tile(loaded_videos[i]));
+    if(end_index < loaded_videos.length) {
+        for (var i = 0; i < end_index; i++) {
+            $('#content').append(create_video_tile(loaded_videos[i]));
+        }
+    }
+    else {
+        // grab more
+        load_live_videos(function() {
+            add_loaded();
+            display_video_tiles();
+        });
     }
     console.log('display_video_tiles() - start:0 end:'+end_index);
 };
