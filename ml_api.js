@@ -57,6 +57,8 @@ var load_live_videos = function(on_load){
 						current_videos.push(this.id);
 					});
 					
+                    console.log('There are '+current_videos+' videos loaded.');
+                    
 					// Let our callbacks know we're done
 					if(new_videos.length > 0 && loaded_videos_callbacks.length > 0) {
 						$(loaded_videos_callbacks).each(function() {
@@ -114,7 +116,6 @@ var parse_videos = function(src) {
 			video.thumbnail_url = 'http://thumbs.motherlessmedia.com/thumbs/'+video.id+'-strip.jpg';
 			video.taboo =  get_taboo_tag(video.title);
 			
-			console.log('@@-- '+video.title+' | '+video.author+' | '+video.length);
 			new_videos.push(video);
 			new_videos_ids.push(video.id);
 		}

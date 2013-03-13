@@ -279,13 +279,13 @@ $(document).ready(function() {
             recalculate_counts();
         }, 1500);
     });
-	$(btn2d).click(function(){
+	$('#btn2d').click(function(){
         $(this).toggleClass('down');
-        $(btn3d).prop('class','togglebutton');
+        $('#btn3d').prop('class','togglebutton');
     });
-    $(btn3d).click(function(){
+    $('#btn3d').click(function(){
         $(this).toggleClass('down');
-        $(btn2d).prop('class','togglebutton');
+        $('#btn2d').prop('class','togglebutton');
     });
 	$('#video_overlay').click(function() {
 		close_overlay();
