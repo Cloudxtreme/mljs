@@ -204,11 +204,8 @@ var display_previous_videos = function() {
             $('#content').prepend(create_video_tile(loaded_videos[i]));
             console.log('Prepended '+i);
         }
+        $('#content > div:gt('+(tile_row_count*tile_col_count)+')').remove(); // This might not be the best place!
         console.log('display_previous_videos() - start:'+start_index+' end:'+end_index);
-        return true;
-    }
-    else {
-        return false;
     }
 };
 
@@ -237,29 +234,21 @@ $(document).ready(function() {
     recalculate_counts();
 
     $(document).mousewheel(function(e,d) {
-        if(d > 0 && display_previous_videos()) { // Scroll up
-            con.css({'margin-top':'-='+(parseInt(tile_size.height)+tile_margins)+'px'});
-            con.animate({'margin-top':'+='+(parseInt(tile_size.height)+tile_margins)+'px'}, 250, function() {
-                $('#content > div:gt('+(tile_row_count*tile_col_count)+')').remove();
-                con.css({'margin-top':'0px'});
-            });
+        if(d > 0) { // Wheel up
+            display_previous_videos();
         }
-        else {
+        else { // Wheel down
             display_next_videos();
         }
     });
     $(document).keyup(function(e) {
-        if(e.which === 38 && display_previous_videos()) { // up
-            con.css({'margin-top':'-='+(parseInt(tile_size.height)+tile_margins)+'px'});
-            con.animate({'margin-top':'+='+(parseInt(tile_size.height)+tile_margins)+'px'}, 250, function() {
-                $('#content > div:gt('+(tile_row_count*tile_col_count)+')').remove();
-                con.css({'margin-top':'0px'});
-            });
+        if(e.which === 38) { // Up
+            display_previous_videos();
         }
-        else if(e.which === 40) { // down
+        else if(e.which === 40) { // Down
             display_next_videos();
         }
-        else if(e.which == 27) { // esc
+        else if(e.which == 27) { // Esc
             if(author_mode) {
                 author_mode = false;
                 display_video_tiles();
