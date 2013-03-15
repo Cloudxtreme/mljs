@@ -190,7 +190,6 @@ var display_next_videos = function() {
 };
 
 // Displays the previous row of videos
-// TODO fix concurrency issue
 var display_previous_videos = function() {
     if(scrolled_rows > 0) {
         scrolled_rows--;
@@ -198,7 +197,6 @@ var display_previous_videos = function() {
         var end_index = start_index+tile_col_count;
         for(var i = end_index-1; i >= start_index; i--) {
             $('#content').prepend(create_video_tile(loaded_videos[i]));
-            console.log('Prepended '+i);
         }
         $('#content > div:gt('+(tile_row_count*tile_col_count)+')').remove(); // This might not be the best place!
         console.log('display_previous_videos() - start:'+start_index+' end:'+end_index);

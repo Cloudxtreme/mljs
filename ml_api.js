@@ -57,7 +57,7 @@ var load_live_videos = function(on_load){
 						current_videos.push(this.id);
 					});
 					
-                    console.log('There are '+current_videos+' videos loaded.');
+                    console.log('There are '+current_videos.length+' videos loaded.');
                     
 					// Let our callbacks know we're done
 					if(new_videos.length > 0 && loaded_videos_callbacks.length > 0) {
@@ -105,7 +105,7 @@ var parse_videos = function(src) {
 		if(current_videos.indexOf(video_link.rel) == -1 && new_videos_ids.indexOf(video_link.rel) == -1) {
 			var meta_wrapper = $(this).children('div.thumbnail-meta');
 			var video = {};
-			var b_u = 'http://motherless.com/'; // The base url
+			var b_u = 'http://motherless.com/';
 			video.author = meta_wrapper.children('div.thumbnail-info.left.ellipsis').not('.small').text().trim();
 			video.author_url = b_u+'u/'+video.author;
 			video.length = meta_wrapper.children('div.thumbnail-info.right.ellipsis').not('.small').text().trim();
