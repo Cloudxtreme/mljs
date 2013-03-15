@@ -172,11 +172,7 @@ var display_next_videos = function() {
             }
             scrolled_rows++;
             console.log('Displayed video '+start_index+' through '+end_index+', '+(loaded_videos.length-end_index)+' videos left');
-            var con = $('#content');
-            con.animate({'margin-top':'-='+(parseInt(tile_size.height)+tile_margins)+'px'}, 250, function() {
-                $('#content > div:lt('+tile_col_count+')').remove();
-                con.css({'margin-top':'0px'});
-            });
+            $('#content > div:lt('+tile_col_count+')').remove();
         }
         else {
             console.log('Out of videos!');
