@@ -153,7 +153,7 @@ var display_video_tiles = function() {
     else {
         // grab more
         load_live_videos(function(videos) {
-            add_loaded(videos);
+            add_loaded(videos); // TODO This is being improperly called multiple times!!
             display_video_tiles();
         });
     }

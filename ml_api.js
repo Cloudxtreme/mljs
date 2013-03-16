@@ -37,9 +37,13 @@ var get_taboo_tag = function(title) {
 // Attempts to load live videos from motherless
 var load_live_videos = function(on_load){
 	// Add the call back
-	if(on_load && loaded_videos_callbacks.indexOf(on_load) == -1) {
-		loaded_videos_callbacks.push(on_load);	
+	if(on_load && loaded_videos_callbacks.indexOf(on_load) == -1) { // This should stop duplicates..
+		loaded_videos_callbacks.push(on_load);
+        console.log('Currently '+loaded_videos_callbacks.length+' callbacks');
 	}
+    else {
+        console.log('Ignoring duplicate callback');
+    }
 	
 	// There a few reasons to ignore this request
 	if(!videos_are_loading && !load_timeout && loaded_videos_callbacks.length > 0) {
