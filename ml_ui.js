@@ -151,7 +151,9 @@ var display_video_tiles = function() {
         }
     }
     else {
+        console.log('end_index: '+end_index+' loaded_videos.length: '+loaded_videos.length);
         // grab more
+        load_live_videos(add_loaded);
         load_live_videos(function(videos) {
             display_video_tiles();
         });

@@ -37,7 +37,7 @@ var get_taboo_tag = function(title) {
 // Attempts to load live videos from motherless
 var load_live_videos = function(on_load){
 	// Add the call back
-	if(on_load && loaded_videos_callbacks.indexOf(on_load) == -1) { // This should stop duplicates..
+	if(on_load && loaded_videos_callbacks.indexOf(on_load) == -1) {
 		loaded_videos_callbacks.push(on_load);
         console.log('Currently '+loaded_videos_callbacks.length+' callbacks');
 	}
