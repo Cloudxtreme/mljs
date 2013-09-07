@@ -3,14 +3,14 @@
 // Whired
 
 // Videos that have been loaded already
-var current_videos = new Array();
+var current_videos = [];
 
 // Video load callbacks
-var loaded_videos_callbacks = new Array();
+var loaded_videos_callbacks = [];
 
 // Tags that indicate a taboo
 var taboo_tags = {
-	'scat':['toilet','shit','poop','piss','pee','dump','crap','scat','diarrhea','turd','enema','puk','vomit','diaper','constipat'],
+	'scat':['toilet','shit','poop','piss','pee','dump','crap','scat','diarrhea','turd','enema','puk','vomit','diaper','constipat','fart'],
 	'gore':['gore','death','kill','snuff','dead','murder','stab','blood','bleeding','gun','beat','fight'],
 	'gay':['gay','homo','fag','queer','twink','shemale','tran','trap'],
 	'beast':['beast','animal','dog','horse'],
@@ -35,7 +35,16 @@ var get_taboo_tag = function(title) {
 };
 
 // Attempts to load live videos from motherless
-var load_live_videos = function(){
+var load_live_videos = function(on_load){
+	// Add the call back
+	if(on_load && loaded_videos_callbacks.indexOf(on_load) == -1) { // This should stop duplicates..
+		loaded_videos_callbacks.push(on_load);
+        console.log('Currently '+loaded_videos_callbacks.length+' callbacks');
+	}
+    else {
+        console.log('Ignoring duplicate callback');
+    }
+	
 	// There a few reasons to ignore this request
 	if(!videos_are_loading && !load_timeout && loaded_videos_callbacks.length > 0) {
 		videos_are_loading = true;
@@ -45,23 +54,29 @@ var load_live_videos = function(){
 			url: 'http://motherless.com/live/videos',
 			dataType: 'html',
 			success: function(data) {
-				load_timeout = setTimeout(load_timeout_callback, 15000);
+				load_timeout = setTimeout(load_timeout_callback, 16000);
 				var new_videos = parse_videos(data);
-				$(new_videos).each(function() {
-					current_videos.push(this.id);
-				});
-
-				videos_are_loading = false;
-				
-				// Let our callbacks know we're done
-				if(new_videos.length > 0 && loaded_videos_callbacks.length > 0) {
-					$(loaded_videos_callbacks).each(function() {
-						this(new_videos);
+				if(new_videos.length > 0) { // New videos aren't guaranteed
+					$(new_videos).each(function() {
+						current_videos.push(this.id);
 					});
+					
+                    console.log('There are '+current_videos.length+' videos loaded.');
+                    
+					// Let our callbacks know we're done
+					if(new_videos.length > 0 && loaded_videos_callbacks.length > 0) {
+						$(loaded_videos_callbacks).each(function() {
+							this(new_videos);
+						});
+						loaded_videos_callbacks = []; // Clear them out
+						videos_are_loading = false;
+					}
 				}
-				
-				// There still might be some extra screen real estate
-				load_by_scroll();
+				else {
+					console.log('No new videos found, retrying!');
+					videos_are_loading = false;
+					setTimeout(load_live_videos, 5000);
+				}
 			}
 		});
 	}
@@ -87,25 +102,25 @@ var load_user_videos = function(user,callback) {
 
 // Parses video objects from the specified source
 var parse_videos = function(src) {
-	var new_videos = new Array();
-	var new_videos_ids = new Array();
-	$(src).find('div.thumbnail.mediatype_video').each(function() {
-		var video_link = $(this).children('div.thumbnail-img-wrap').children('a').get(0);
-		if(current_videos.indexOf(video_link.rel) == -1 && new_videos_ids.indexOf(video_link.rel) == -1) {
-			var meta_wrapper = $(this).children('div.thumbnail-meta');
+	var new_videos = [];
+	var new_videos_ids = [];
+	$(src).find('div.thumb.video.medium').each(function() {
+		var video_link = $(this).find('a.img-container').get(0);
+		var id = video_link.href.substring(video_link.href.lastIndexOf('/')+1);
+		if(current_videos.indexOf(id) == -1 && new_videos_ids.indexOf(id) == -1) {
+			var meta_wrapper = $(this).find('div.captions');
 			var video = {};
-			var b_u = 'http://motherless.com/'; // The base url
-			video.author = meta_wrapper.children('div.thumbnail-info.left.ellipsis').not('.small').text().trim();
+			var b_u = 'http://motherless.com/';
+			video.author = meta_wrapper.find('a.caption.left').text().trim();
 			video.author_url = b_u+'u/'+video.author;
-			video.length = meta_wrapper.children('div.thumbnail-info.right.ellipsis').not('.small').text().trim();
-			video.id = video_link.rel;
+			video.length = meta_wrapper.find('div.caption.left').text().trim();
+			video.id = id;
 			video.url = b_u+'view/frame?item='+video.id;
 			video.full_url = b_u+video.id;
-			video.title = video_link.title;
+			video.title = $(video_link).find('img.static').get(0).alt;
 			video.thumbnail_url = 'http://thumbs.motherlessmedia.com/thumbs/'+video.id+'-strip.jpg';
 			video.taboo =  get_taboo_tag(video.title);
 			
-			console.log('@@-- '+video.title+' | '+video.author+' | '+video.length);
 			new_videos.push(video);
 			new_videos_ids.push(video.id);
 		}
@@ -113,13 +128,13 @@ var parse_videos = function(src) {
 	return new_videos;
 };
 
-// Uhhhhhh doc?
+// TODO doc
 var load_timeout;
 var reload_after_timeout;
 var videos_are_loading;
 var load_timeout_callback = function() {
 	clearTimeout(load_timeout);
-	load_timeout = undefined;
+	load_timeout = null;
 	if(reload_after_timeout) {
 		load_live_videos();
 		reload_after_timeout = false;
