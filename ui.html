@@ -10,7 +10,19 @@
     <body style="background-color:#232323;margin:0px">
     	<div id="drawer" style="display:none;padding:10px;margin:20px;width:auto;float:left;border-radius:15px;background-color:#121212"></div>
     	<div style="clear:both"></div><!-- ? -->
-		<span id="content"></span>
+		<span id="content">
+		    <!-- Tile placeholder -->
+            <div id="tile" class="tile">
+              <div class="caption"><a id="title">Title goes here</a></div>
+              <div class="viewport">
+                <div id="thumbstrip" class="thumbstrip"></div>
+              </div>
+              <div id="length" class="caption bottom left">Length</div>
+              <div id="author" class="caption bottom right">Author</div>
+              <div style="clear:both"></div>
+            </div>
+            <!-- End tile placeholder -->
+		</span>
 		<div style="clear:both"></div><!-- ? -->
 		<div id="video_overlay" style="clear:both;position:fixed;z-index:4;background-color:rgba(59,59,59,.94);border-radius:15px;left:5px;top:5px;right:5px;bottom:5px;display:none">
 				<div style="position:relative;width:100%;height:100%">

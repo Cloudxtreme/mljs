@@ -16,3 +16,42 @@ a:visited{color:#9C9C9C}
 .togglebutton.down {
 	background-color:rgba(100,100,100,.80)
 }
+/* Tile specific CSS from here down */
+.tile {
+  padding-top:2px;
+  padding-left:2px;
+  padding-right:2px;
+  border-radius: 5px;
+  background-color:royalblue;
+  width:200px;
+  display:none;
+  float:left;
+  margin:5px;
+}
+.viewport {
+  width:200px;
+  height:160px;
+  overflow:hidden;
+}
+.caption {
+  margin-left:3px;
+  padding-bottom:1px;
+  overflow:hidden;
+  white-space:nowrap;
+}
+.caption.bottom {
+  padding-top:1px;
+}
+.caption.bottom.left {
+  float:left;
+}
+.caption.bottom.right {
+  float:right;
+  padding-right:3px;
+  cursor:hand;
+}
+.thumbstrip {
+  margin-top:-205px;
+  width:2500px;
+  height:459px;
+}
