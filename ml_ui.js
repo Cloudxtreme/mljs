@@ -100,13 +100,21 @@ var clear_preview = function(tile) {
 	}
 };
 
+// Appends videos to #content
+var append_to_content = function(videos) {
+    $(videos).each(function() {
+        $(content).append(create_video_tile(this));
+    });
+    $('#loading').css({'display':'none'});
+};
+
 // Load more videos when the bottom of the page is approaching
 var load_by_scroll = function() {
-
 	// TODO Needs to hide stale content?
 	if(($(document.body).scrollTop() + document.body.clientHeight)/document.documentElement.clientHeight >= .7) {
 		console.log('Scroll pos dictates load!');
-		load_live_videos();
+        $('#loading').css({'display':'block'});
+		load_live_videos(append_to_content);
 	}
 };
 $(window).scroll(load_by_scroll);
@@ -122,14 +130,6 @@ $(document).ready(function() {
             $(drw).empty();
         });
     });
-	$(btn2d).click(function(){
-        $(this).toggleClass('down');
-        $(btn3d).prop('class','togglebutton');
-    });
-    $(btn3d).click(function(){
-        $(this).toggleClass('down');
-        $(btn2d).prop('class','togglebutton');
-    });
 	video_overlay = $('#video_overlay');
 	video_overlay.click(function() {
 		$('#video_frame').prop('src','');
@@ -137,13 +137,6 @@ $(document).ready(function() {
             clear_preview(current_preview_tile);
         });
 	});
-    
-	// Begin loading live videos
-	loaded_videos_callbacks.push(function(videos) {
-		$(videos).each(function() {
-			$(content).append(create_video_tile(this));
-		});
-	});
-	
-    load_live_videos();
+	$('#loading').css({'display':'block'});
+    load_live_videos(append_to_content);
 });

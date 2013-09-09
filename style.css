@@ -1,57 +1,55 @@
-html{font-size:9px;font-family:Droid Sans,sans-serif}
-a{color:#FFF;text-decoration:none}
-a:visited{color:#9C9C9C}
-.togglebutton {
-	padding:5px;
-	float:left;
-	font-size:9px;
-	color:#CCC;
-	background-color:inherit;
-	cursor:pointer;
-	border-radius:5px
+@import url(http://fonts.googleapis.com/css?family=Droid+Sans);
+html{color:#FFF; font:9px Droid Sans, sans-serif; text-shadow: 0px 0px 3px rgba(0,0,0,.3)}
+body{background-color:#232323;margin:0px}
+#loading {
+  position:fixed;
+  right:0px;
+  bottom:0px;
+  height:64px;
+  width:64px;
+  display:none;
+  background-image:url('images/loading.gif');
 }
-.togglebutton:hover {
-	background-color:rgba(100,100,100,.80)
-}
-.togglebutton.down {
-	background-color:rgba(100,100,100,.80)
-}
+a{color:#FFF;text-decoration:none;}
+a:visited{text-decoration:line-through}
 /* Tile specific CSS from here down */
 .tile {
+  overflow:hidden;
+  position:relative;
   padding-top:2px;
   padding-left:2px;
   padding-right:2px;
   border-radius: 5px;
   background-color:royalblue;
   width:200px;
-  display:none;
   float:left;
   margin:5px;
+  display:none
 }
 .viewport {
   width:200px;
   height:160px;
-  overflow:hidden;
+  overflow:hidden
 }
 .caption {
   margin-left:3px;
   padding-bottom:1px;
   overflow:hidden;
-  white-space:nowrap;
+  white-space:nowrap
 }
 .caption.bottom {
-  padding-top:1px;
+  padding-top:1px
 }
 .caption.bottom.left {
-  float:left;
+  float:left
 }
 .caption.bottom.right {
   float:right;
   padding-right:3px;
-  cursor:hand;
+  cursor:hand
 }
 .thumbstrip {
   margin-top:-205px;
   width:2500px;
-  height:459px;
+  height:459px
 }
